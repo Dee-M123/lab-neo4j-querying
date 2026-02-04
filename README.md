@@ -13,61 +13,114 @@
 
 ### 1. Basic Node Retrieval
 
-**Task**: List all movies released in the year **1999**. <br>
+**Task**: List all movies released in the year **1999**.
+
+<br> MATCH (m:Movie)
+    WHERE m.released = 1999
+    RETURN m;
+
 **Goal**: Practice filtering node properties.
 
 
 ### 2. Find a Person by Name
 
-**Task**: Retrieve details for the person named **Keanu Reeves**. <br>
+**Task**: Retrieve details for the person named **Keanu Reeves**.
+
+<br> MATCH (p:Person)
+    WHERE p.name = "Keanu Reeves"
+    RETURN p;
+
+
 **Goal**: Query nodes by exact property match.
 
 
 ### 3. Find Actors in a Movie
 
-**Task**: List all actors who acted in **The Matrix**. <br>
+**Task**: List all actors who acted in **The Matrix**.
+
+<br> MATCH (p:Person)-[:ACTED_IN]->(m:Movie)
+    WHERE m.title = "The Matrix"
+    RETURN p;
+
 **Goal**: Traverse relationships from a movie to actors.
 
 
 ### 4. Directors of a Movie
 
-**Task**: Find the director(s) of **The Matrix Revolutions**. <br>
+**Task**: Find the director(s) of **The Matrix Revolutions**. 
+
+<br> MATCH (p:Person)-[:DIRECTED]->(m:Movie)
+    WHERE m.title = "The Matrix"
+    RETURN p;
+
 **Goal**: Filter relationships by type (`DIRECTED`).
 
 
 ### 5. Movies by Genre and Year
 
-**Task**: Find all **Action** movies released after **2000**. <br>
+**Task**: Find all **Action** movies released after **2000**. 
+
+<br>MATCH (m:Movie)-[:IN_GENRE]->(g:Genre)
+    WHERE g.name = "Action" AND m.released > 2000
+    RETURN m;
+
 **Goal**: Combine relationship traversal and property filtering.
 
 
 ### 6. Co-Actors of an Actor
 
-**Task**: Find all actors who worked with **Tom Hanks** in any movie. <br>
+**Task**: Find all actors who worked with **Tom Hanks** in any movie.
+
+<br> MATCH (tom:Person)-[:ACTED_IN]->(m:Movie)<-[:ACTED_IN]-(co:Person)
+    WHERE tom.name = "Tom Hanks"
+    RETURN DISTINCT co;
+
 **Goal**: Use variable-length patterns and deduplication (`DISTINCT`).
 
 
 ### 7. Movies with Multiple Relationships
 
-**Task**: Find all people who either acted in or directed **Cloud Atlas**. <br>
+**Task**: Find all people who either acted in or directed **Cloud Atlas**.
+
+<br> MATCH (p:Person)-[r]->(m:Movie)
+    WHERE m.title = "Cloud Atlas"
+      AND (type(r) = "ACTED_IN" OR type(r) = "DIRECTED")
+    RETURN DISTINCT p;
+
 **Goal**: Filter relationship types dynamically.
 
 
 ### 8. Shortest Path Between Actors
 
-**Task**: Find the shortest path between **Tom Hanks** and **Meg Ryan** through co-acting. <br>
+**Task**: Find the shortest path between **Tom Hanks** and **Meg Ryan** through co-acting.
+
+<br> MATCH (tom:Person), (meg:Person)
+    WHERE tom.name = "Tom Hanks" AND meg.name = "Meg Ryan"
+    MATCH p = shortestPath((tom)-[:ACTED_IN*]-(meg))
+    RETURN p;
+
 **Goal**: Use `shortestPath` and variable-length relationships.
 
 
 ### 9. Aggregation with HAVING
 
-**Task**: List actors who have acted in **at least 3 movies**. <br>
+**Task**: List actors who have acted in **at least 3 movies**. 
+
+<br> MATCH (p:Person)-[:ACTED_IN]->(m:Movie)
+    WITH p, COUNT(m) AS movieCount
+    WHERE movieCount >= 3
+    RETURN p, movieCount;
+
 **Goal**: Use `WITH` and `HAVING`-like filtering.
 
 
 ### 10. Complex Graph Pattern (Advanced)
 
-**Task**: Find all directors who also acted in their own movies. <br>
+**Task**: Find all directors who also acted in their own movies.
+
+<br> MATCH (p:Person)-[:DIRECTED]->(m:Movie)<-[:ACTED_IN]-(p)
+    RETURN DISTINCT p;
+
 **Goal**: Combine multiple relationships on the same node.
 
 
